@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.chat_message_histories import SQLChatMessageHistory  # ← CHANGED
+from langchain_community.chat_message_histories import SQLChatMessageHistory  
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -14,7 +14,7 @@ from langchain_chroma import Chroma
 load_dotenv()
 st.set_page_config(page_title="CHATBOT · RAG", layout="wide", page_icon="📚")
 
-DB_PATH = "chat_history.db"  # ← permanent SQLite file on disk
+DB_PATH = "chat_history.db"  
 
 # ─── Global Styles ────────────────────────────────────────────────────────────
 st.markdown("""
@@ -442,7 +442,7 @@ if not uploaded_files:
     st.stop()
 
 
-# ─── Ingest PDFs ──────────────────────────────────────────────────────────────
+# ─── upload PDFs 
 all_docs, tmp_paths = [], []
 for pdf in uploaded_files:
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
@@ -462,7 +462,7 @@ for p in tmp_paths:
         pass
 
 
-# ─── Sidebar: loaded docs + stats ─────────────────────────────────────────────
+#  loaded docs + stats 
 with st.sidebar:
     st.markdown('<div class="sidebar-section">', unsafe_allow_html=True)
     st.markdown('<p class="sidebar-label">Loaded Files</p>', unsafe_allow_html=True)
@@ -476,7 +476,7 @@ with st.sidebar:
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ─── Build index (cached) ─────────────────────────────────────────────────────
+#  Build index 
 @st.cache_resource(show_spinner="Building index…")
 def build_index(_docs, file_key):
     splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=120)
@@ -499,7 +499,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 
-# ─── Prompts ──────────────────────────────────────────────────────────────────
+#  Prompts 
 contextualize_q_prompt = ChatPromptTemplate.from_messages([
     ("system",
      "Rewrite the user's latest question into a standalone search query using the chat history for context. "
@@ -530,7 +530,7 @@ def get_history(session_id: str) -> SQLChatMessageHistory:
     )
 
 
-# ─── Main chat UI ─────────────────────────────────────────────────────────────
+# ─── Main chat UI 
 st.markdown('<div class="main-wrap">', unsafe_allow_html=True)
 
 st.markdown(f"""
@@ -576,7 +576,7 @@ else:
 st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ─── Helper ───────────────────────────────────────────────────────────────────
+
 def _join_docs(docs, max_chars=7000):
     chunks, total = [], 0
     for d in docs:
@@ -588,7 +588,7 @@ def _join_docs(docs, max_chars=7000):
     return "\n\n---\n\n".join(chunks)
 
 
-# ─── Chat input + inference ───────────────────────────────────────────────────
+#  Chat input + inference 
 user_q = st.chat_input("Ask something about your documents…")
 
 if user_q:
@@ -619,7 +619,7 @@ if user_q:
     with st.chat_message("assistant"):
         st.write(answer)
 
-    # ── Save permanently to SQLite ──
+    #  Save permanently 
     history.add_user_message(user_q)
     history.add_ai_message(answer)
 
@@ -638,4 +638,5 @@ if user_q:
                   <p class="chunk-meta">#{i} &nbsp;·&nbsp; {src} &nbsp;·&nbsp; page {page}</p>
                   <p class="chunk-text">{preview}</p>
                 </div>
+
                 """, unsafe_allow_html=True)
